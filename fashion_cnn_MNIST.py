@@ -10,8 +10,6 @@ with open("eval_accuracy.txt","r") as f:
 raw_set = ks.datasets.fashion_mnist
 train_set, test_set = preprocess_dataset(raw_set)
 
-# for x,y in train_set.take(1):
-#     print(x.shape)
 # train model and save weights
 model = new_model()
 history = model.fit(train_set,epochs=10, validation_data=test_set)
