@@ -1,28 +1,15 @@
 import argparse
 import numpy as np
-from tensorflow.keras.preprocessing import image
-from fashion_cnn_functions import new_model
-
+from utils.fashion_cnn_functions import new_model, load_and_preprocess_image
 # names of classes from MNIST
 CLASS_NAMES = [
     "T-shirt/top", "Trouser", "Pullover", "Dress", "Coat",
     "Sandal", "Shirt", "Sneaker", "Bag", "Ankle boot"
 ]
-def load_and_preprocess_image(img_path):
-    img = image.load_img(
-        img_path,
-        color_mode="grayscale",
-        target_size=(28, 28)
-    )
-    img_array = image.img_to_array(img)
-    img_array = img_array / 255.0
-    img_array = np.expand_dims(img_array, axis=0)
-    return img_array
-
 
 def main(image_path):
     model = new_model()
-    model.load_weights("fashion_cnn.weights.h5")
+    model.load_weights("fashion_cnn.weights.keras")
 
     img = load_and_preprocess_image(image_path)
     predictions = model.predict(img)

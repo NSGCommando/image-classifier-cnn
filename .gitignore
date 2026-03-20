@@ -1,2 +1,6 @@
 __pycache__/
-venv
+*venv
+*code-workspace
+models
+results
+**/*.keras

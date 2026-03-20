@@ -1,11 +1,15 @@
 # Image Classifier #
+A CNN-based image classifier trained on MNIST dataset
+
 ## Architecture ##
-- CNN-based image classifier trained on MNIST dataset
 - Structure:
  - Input layer with input shape of 28x28 pixels per image
  - Two blocks of Conv2d layers, blocks structured as follows: ```COnv2d->BatchNorm->ReLUActivation->MaxPooling```
  - Conv2d blocks followed by two dense layers of 128 and 256 neurons each, second dense layer has L2 Regularization applied to it
  - Final layer is dense layer for classification with 10 output neurons
+
+## Training ##
+- To train the model and generate model weights, run the `training.py` script from project root - `python training.py`
 
 ## Inference ##
 - To run inference on a single image, use the following command in terminal from the root folder: ```python inference.py --image [image_path]```
