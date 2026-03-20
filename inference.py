@@ -1,6 +1,7 @@
 import argparse
-import numpy as np
-from utils.fashion_cnn_functions import new_model, load_and_preprocess_image
+import keras.ops as ops
+from utils.fashion_cnn_functions import new_model, load_and_preprocess_image, Paths
+modelpath = Paths.ModelsPath.value/"fashion_cnn.weights.keras"
 # names of classes from MNIST
 CLASS_NAMES = [
     "T-shirt/top", "Trouser", "Pullover", "Dress", "Coat",
@@ -9,13 +10,15 @@ CLASS_NAMES = [
 
 def main(image_path):
     model = new_model()
-    model.load_weights("fashion_cnn.weights.keras")
+    model.load_weights(modelpath)
 
     img = load_and_preprocess_image(image_path)
-    predictions = model.predict(img)
+    predictions = model.predict(x=img)
+    pred_tensor = ops.argmax(predictions, axis=1)[0]
+    conf_tensor = ops.max(predictions)
 
-    predicted_class = np.argmax(predictions, axis=1)[0]
-    confidence = np.max(predictions)
+    predicted_class = int(ops.convert_to_numpy(pred_tensor))#type: ignore
+    confidence = float(ops.convert_to_numpy(conf_tensor))#type: ignore
 
     print(f"Predicted class: {CLASS_NAMES[predicted_class]}")
     print(f"Confidence: {confidence:.4f}")

@@ -7,6 +7,7 @@ from pathlib import Path
 class Paths(Enum):
     ModelsPath = Path(__file__).parents[1].resolve()/"models"
     ResultsPath = Path(__file__).parents[1].resolve()/"results"
+    # Test cdommdn
 
 def new_model()->ks.Sequential:
     """Factory for new model instance.
@@ -27,12 +28,12 @@ def new_model()->ks.Sequential:
         ks.layers.Dense(128, activation='relu'),
         ks.layers.Dense(256, activation='relu',kernel_regularizer=ks.regularizers.l2(1e-4)),
         ks.layers.Dropout(0.2),
-        ks.layers.Dense(10)
+        ks.layers.Dense(10, activation='softmax')
     ])
     # Compile the model with optimizer and loss function using accuracy as the measurement
     opt = ks.optimizers.Adam(0.001)
     the_model.compile(optimizer=opt,#type: ignore
-                      loss=ks.losses.SparseCategoricalCrossentropy(from_logits=True),
+                      loss=ks.losses.SparseCategoricalCrossentropy(from_logits=False),
                       metrics=[ks.metrics.SparseCategoricalAccuracy()])
     return the_model
 
@@ -54,18 +55,6 @@ def print_label_example(d1):
         print("Label:", label.numpy())
         show_example_color(image)
         break
-
-# def preprocess_dataset(d1):
-#     (xtrain, ytrain), (xtest, ytest) = d1.load_data()
-
-#     # Scale image pixel values to between 0 and 1
-#     train_images = xtrain[..., tf.newaxis] / 255.0
-#     test_images = xtest[..., tf.newaxis] / 255.0
-
-#     # Create and filter the datasets for desired classes
-#     train_set = tf.data.Dataset.from_tensor_slices((train_images, ytrain)).batch(32)
-#     test_set = tf.data.Dataset.from_tensor_slices((test_images, ytest)).batch(32)
-#     return train_set, test_set
 
 def preprocess_dataset(train_data, test_data):
     """
@@ -90,9 +79,12 @@ def load_and_preprocess_image(img_path):
     img = image.load_img(
         img_path,
         color_mode="grayscale",
-        target_size=(28, 28)
+        target_size=(28, 28),
+        interpolation="bilinear"
     )
     img_array = image.img_to_array(img)
     img_array = img_array / 255.0
+    if ops.mean(img_array) > 0.5:
+        img_array = 1.0 - img_array
     img_array = ops.expand_dims(img_array, axis=0)
     return img_array
