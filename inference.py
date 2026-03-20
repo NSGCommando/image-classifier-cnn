@@ -1,6 +1,7 @@
 import argparse
 import keras.ops as ops
-from utils.fashion_cnn_functions import new_model, load_and_preprocess_image, Paths
+from keras.models import load_model, Model
+from utils.fashion_cnn_functions import load_and_preprocess_image, Paths
 modelpath = Paths.ModelsPath.value/"fashion_cnn.weights.keras"
 # names of classes from MNIST
 CLASS_NAMES = [
@@ -9,9 +10,9 @@ CLASS_NAMES = [
 ]
 
 def main(image_path):
-    model = new_model()
-    model.load_weights(modelpath)
-
+    model = load_model(modelpath)
+    if not isinstance(model,Model):
+        raise RuntimeError("Model didn't load!")
     img = load_and_preprocess_image(image_path)
     predictions = model.predict(x=img)
     pred_tensor = ops.argmax(predictions, axis=1)[0]
