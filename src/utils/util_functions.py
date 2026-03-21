@@ -1,13 +1,13 @@
 import keras as ks
-import keras.ops as ops
+from keras.ops import cast, expand_dims
 from enum import Enum
-from keras.preprocessing import image
+from keras.models import load_model, Model
 import matplotlib.pyplot as plt
 from pathlib import Path
+
 class Paths(Enum):
-    ModelsPath = Path(__file__).parents[1].resolve()/"models"
-    ResultsPath = Path(__file__).parents[1].resolve()/"results"
-    # Test cdommdn
+    ModelsPath = Path(__file__).parents[2].resolve()/"models"
+    ResultsPath = Path(__file__).parents[2].resolve()/"results"
 
 def new_model()->ks.Sequential:
     """Factory for new model instance.
@@ -65,26 +65,18 @@ def preprocess_dataset(train_data, test_data):
     (xtest, ytest) = test_data
 
     # Scale using Keras ops (replaces tf.newaxis and manual division)
-    train_images = ops.expand_dims(xtrain, axis=-1)
-    test_images = ops.expand_dims(xtest, axis=-1)
+    train_images = expand_dims(xtrain, axis=-1)
+    test_images = expand_dims(xtest, axis=-1)
     # Need explicit casting to Float32 from Uint8
-    train_images = ops.cast(train_images, dtype="float32") / 255.0
-    test_images = ops.cast(test_images, dtype="float32") / 255.0
+    train_images = cast(train_images, dtype="float32") / 255.0
+    test_images = cast(test_images, dtype="float32") / 255.0
 
     return (train_images, ytrain), (test_images, ytest)
 
-def load_and_preprocess_image(img_path):
-    """Helper to load and preprocess a single iamge during inference run.
-    Returns an image array"""
-    img = image.load_img(
-        img_path,
-        color_mode="grayscale",
-        target_size=(28, 28),
-        interpolation="bilinear"
-    )
-    img_array = image.img_to_array(img)
-    img_array = img_array / 255.0
-    if ops.mean(img_array) > 0.5:
-        img_array = 1.0 - img_array
-    img_array = ops.expand_dims(img_array, axis=0)
-    return img_array
+def load_saved_model(modelpath=Paths.ModelsPath.value/"fashion_cnn.weights.keras"):
+    """Helper to load saved model from specified path.
+    Returns an instance of keras.models.Model"""
+    model = load_model(modelpath)
+    if not isinstance(model,Model):
+        raise RuntimeError("Model didn't load!")
+    return model

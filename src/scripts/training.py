@@ -1,5 +1,6 @@
 import keras as ks
-from utils.fashion_cnn_functions import new_model, preprocess_dataset, Paths
+from src.utils.util_functions import new_model, preprocess_dataset, Paths
+
 modelsdir = Paths.ModelsPath.value
 modelsdir.mkdir(parents=True, exist_ok=True)
 evaldir = Paths.ResultsPath.value
