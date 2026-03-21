@@ -1,7 +1,11 @@
-from fastapi import HTTPException
 from src.schemas.data_strategies import bytes_loader_strategy, str_loader_strategy
 from keras.preprocessing.image import img_to_array
 from keras.ops import mean,expand_dims
+
+STRATEGIES = {
+        str:str_loader_strategy,
+        bytes:bytes_loader_strategy
+    }
 
 class DataLoader():
     """Class for loading and preprocessing images during Inference.\n
@@ -14,16 +18,13 @@ class DataLoader():
         self.target_size = target_size
         self.colour_scheme = colour_scheme
         self.resampler = resampler
-        self._strategies = {
-            str:str_loader_strategy,
-            bytes:bytes_loader_strategy
-        }
+        
     def _load_data(self,image_data:str|bytes):
         """Internal method of DataLoader class to handle different types of data(image paths vs byte-streams).
         Returns resized and resampled data array"""
-        strategy = self._strategies.get(type(image_data))
+        strategy = STRATEGIES.get(type(image_data))
         if not strategy:
-            raise HTTPException(status_code=400,detail=f"Unsupported data type: {type(image_data)}")
+            raise ValueError(f"Unsupported data type: {type(image_data)}")
         return strategy(image_data,self.target_size,self.colour_scheme,self.resampler)
 
     def preprocess_data(self,image_data:str|bytes):

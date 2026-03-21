@@ -22,4 +22,4 @@ async def predict(file: UploadFile = File(...)):
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "FastAPI Server Running"}
