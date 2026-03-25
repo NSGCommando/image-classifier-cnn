@@ -1,7 +1,7 @@
 import keras as ks
 from keras.ops import cast, expand_dims
 from enum import Enum
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from keras.models import load_model, Model
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -89,10 +89,11 @@ def default_parser():
     """
     parser = ArgumentParser(
         description="Fashion-MNIST inference",
+        formatter_class=RawDescriptionHelpFormatter,
         epilog="""
         Usage:
-        1. CLI Inference:  python run.py --image path/to/img.jpg
-        2. Web Server:     python run.py
+        CLI Inference:  python run.py --image path/to/img.jpg\n
+        Web Server:     python run.py
         """
         )
     modes = parser.add_mutually_exclusive_group(required=True)
