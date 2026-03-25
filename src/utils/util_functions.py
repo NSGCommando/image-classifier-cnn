@@ -1,6 +1,7 @@
 import keras as ks
 from keras.ops import cast, expand_dims
 from enum import Enum
+from argparse import ArgumentParser
 from keras.models import load_model, Model
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -80,3 +81,29 @@ def load_saved_model(modelpath=Paths.ModelsPath.value/"fashion_cnn.weights.keras
     if not isinstance(model,Model):
         raise RuntimeError("Model didn't load!")
     return model
+
+def default_parser():
+    """
+    Helper to create a parser with default argument flags.
+    Returns an argument Namespace object.
+    """
+    parser = ArgumentParser(
+        description="Fashion-MNIST inference",
+        epilog="""
+        Usage:
+        1. CLI Inference:  python run.py --image path/to/img.jpg
+        2. Web Server:     python run.py
+        """
+        )
+    modes = parser.add_mutually_exclusive_group(required=True)
+    modes.add_argument(
+        "--image",
+        type=str,
+        help="Path to input image"
+    )
+    modes.add_argument(
+        "--server",
+        action="store_true",
+        help="Option to start FastAPI Uvicorn server"
+    )
+    return parser.parse_args()
