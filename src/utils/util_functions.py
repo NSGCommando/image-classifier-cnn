@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 class Paths(Enum):
-    ModelsPath = Path(__file__).parents[2].resolve()/"models"
-    ResultsPath = Path(__file__).parents[2].resolve()/"results"
+    ModelsPath = Path(__file__).parents[1].resolve()/"models"
+    ResultsPath = Path(__file__).parents[1].resolve()/"results"
 
 def new_model()->ks.Sequential:
     """Factory for new model instance.
@@ -76,6 +76,7 @@ def preprocess_dataset(train_data, test_data):
 
 def load_saved_model(modelpath=Paths.ModelsPath.value/"fashion_cnn.weights.keras"):
     """Helper to load saved model from specified path.
+    Default model path at '/src/models/fashion_cnn.weights.keras'.
     Returns an instance of keras.models.Model"""
     model = load_model(modelpath)
     if not isinstance(model,Model):
