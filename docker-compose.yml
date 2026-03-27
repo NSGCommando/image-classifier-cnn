@@ -1,0 +1,9 @@
+services:
+  backend:
+    container_name: uvicorn-server
+    image: clasifier-backend-api
+    build:
+      context: .
+      dockerfile: src/dockerfile
+    ports: 
+      - "8000:8000"

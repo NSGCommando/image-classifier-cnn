@@ -14,7 +14,7 @@ if __name__ == "__main__":
         print("Running as API Server!")
         uvicorn.run(
             "src.app:app", 
-            host="127.0.0.1", 
+            host="0.0.0.0", 
             port=8000, 
             reload=False
         )

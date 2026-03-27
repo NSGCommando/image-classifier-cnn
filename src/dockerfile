@@ -1,0 +1,15 @@
+FROM python:3.12.5
+
+WORKDIR /img-classifier
+
+# Copy requirements from root
+COPY requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy src code, includes scripts and saved model
+COPY src/ ./src
+
+ENV PYTHONPATH=/img-classifier
+EXPOSE 8000
+ENTRYPOINT ["python","-m", "src.run"]
+CMD ["--server"]
