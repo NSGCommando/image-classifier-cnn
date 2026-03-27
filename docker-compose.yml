@@ -1,7 +1,7 @@
 services:
   backend:
     container_name: uvicorn-server
-    image: clasifier-backend-api
+    image: classifier-backend-api
     build:
       context: .
       dockerfile: src/dockerfile

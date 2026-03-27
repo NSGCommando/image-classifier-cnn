@@ -1,14 +1,21 @@
-FROM python:3.12.5
+FROM python:3.12.5-slim as builder
 
-WORKDIR /img-classifier
+WORKDIR /build
 
 # Copy requirements from root
-COPY requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+# Run Image
+FROM python:3.12.5-slim
+
+WORKDIR /img-classifier
+COPY --from=builder /root/.local /root/.local
 
 # Copy src code, includes scripts and saved model
 COPY src/ ./src
 
+ENV PATH=/root/.local/bin:$PATH
 ENV PYTHONPATH=/img-classifier
 EXPOSE 8000
 ENTRYPOINT ["python","-m", "src.run"]
