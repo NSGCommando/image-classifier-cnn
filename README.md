@@ -14,10 +14,9 @@
  - Can be run in CLI mode locally as well as over HTTP via Uvicorn server
 
 ## Training ##
-- To train the model and generate model weights, run the `training.py` script from project root - `python training.py`
+- To train the model and generate model weights, run the `training.py` script from project root as follows: `python training.py`
 - Model weights stored at `src/models/` as `.keras` files
 - Model best accuracy stored at `src/results/eval_accuracy.txt`
-
 
 ## Inference ##
 - Single source execution managed in `run.py` and orchestrated via `run.bat`.
@@ -34,8 +33,8 @@
 - Batch script handles orchestration for .venv activation
 
 ## Implemented ##
-- Training
-- Weight Loading and Saving
+- Training with Weight Loading and Saving for best weights
 - Single-Image Inference
-- Handle Byte-streams and FilePaths (done via strategy pattern dispatcher)
+- Multi-Image Inference (via Directory Globbing)
+- Handle Byte-streams and FilePaths (via strategy Pattern dispatcher)
 
