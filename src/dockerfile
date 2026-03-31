@@ -1,20 +1,20 @@
+# Alias the first stage results as 'builder'
 FROM python:3.12.5-slim as builder
-
 WORKDIR /build
-
 # Copy requirements from root
 COPY requirements.txt .
+# install the site packages to our own location, denoted by '--user' flag
 RUN pip install --user --no-cache-dir -r requirements.txt
 
 # Run Image
 FROM python:3.12.5-slim
-
 WORKDIR /img-classifier
+# Copy first stage results via the 'builder' alias
 COPY --from=builder /root/.local /root/.local
 
 # Copy src code, includes scripts and saved model
 COPY src/ ./src
-
+# Ensure pip knows where the site-packages are being installed
 ENV PATH=/root/.local/bin:$PATH
 ENV PYTHONPATH=/img-classifier
 EXPOSE 8000

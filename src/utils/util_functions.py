@@ -109,3 +109,26 @@ def default_parser():
         help="Option to start FastAPI Uvicorn server"
     )
     return parser.parse_args()
+
+# Finds all valid images within provided path
+def img_search(dir_path):
+    """
+    Simple helper for retrieving paths of all valid images inside provided directory.
+    Also searchse within sub-directories via 'rglob'.
+    Yields an generator for providing absolute image filepath objects (pathlib.WindowsPath)
+    """
+    path_object = Path(dir_path)
+    if path_object.is_file():
+        yield path_object.resolve()
+    else:
+        all_img_path_generator = path_object.rglob("*") # rglob is Recursive Glob, searches sub-directories
+        # use a Set to check for Membership of the filetype. Also resolve all valid image paths
+        image_path_generator = (img_path.resolve() for img_path in all_img_path_generator if img_path.suffix.lower() in {".webp", ".jpg", ".png"})
+        yield from image_path_generator
+
+# print results for CLI Mode
+def print_results(result_data):
+    """Helper to print CLI mode inference results to console"""
+    for img in result_data:
+        print(f"Class: {img["predicted_class"]}")
+        print(f"Confidence: {img["confidence"]}")
