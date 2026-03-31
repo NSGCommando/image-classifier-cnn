@@ -30,6 +30,7 @@
 
 ### Run CLI Inference ###
 - To run CLI inference on a single image, use the following command in terminal from the root folder: ```run.bat --image [image_path]```
+- To run CLI inference on a group of images, use `run.bat --image [image_folder_path]`; the app will handle collection of all valid images within the provided folder. (Valid images are ".webp", ".jpg", ".jpeg, ".png")
 - Batch script handles orchestration for .venv activation
 
 ## Implemented ##

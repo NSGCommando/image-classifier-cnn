@@ -123,7 +123,7 @@ def img_search(dir_path):
     else:
         all_img_path_generator = path_object.rglob("*") # rglob is Recursive Glob, searches sub-directories
         # use a Set to check for Membership of the filetype. Also resolve all valid image paths
-        image_path_generator = (img_path.resolve() for img_path in all_img_path_generator if img_path.suffix.lower() in {".webp", ".jpg", ".png"})
+        image_path_generator = (img_path.resolve() for img_path in all_img_path_generator if img_path.suffix.lower() in {".webp", ".jpg", ".jpeg", ".png"})
         yield from image_path_generator
 
 # print results for CLI Mode
