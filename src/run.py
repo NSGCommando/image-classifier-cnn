@@ -1,7 +1,7 @@
 import uvicorn
 from pathlib import Path
 from src.utils.util_functions import default_parser
-from src.cli import cli_inference
+from src.scripts.cli import cli_inference
 # Run this for the CLI mode
 
 if __name__ == "__main__":
@@ -15,7 +15,7 @@ if __name__ == "__main__":
     elif args.server:
         print("Running as API Server!")
         uvicorn.run(
-            "src.app:app", 
+            "src.scripts.http_server:http_server", 
             host="0.0.0.0", 
             port=8000, 
             reload=False

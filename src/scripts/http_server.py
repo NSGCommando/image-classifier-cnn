@@ -4,9 +4,9 @@ from src.utils.util_functions import load_saved_model
 from src.schemas.response_models import PredictResponse
 model = load_saved_model()
 
-app = FastAPI()
+http_server = FastAPI()
 
-@app.post("/api/predict-one",response_model=PredictResponse)
+@http_server.post("/api/predict-one",response_model=PredictResponse)
 async def predict(file: UploadFile = File(...)):
     if not file.filename:raise HTTPException(status_code=400,detail="Uploaded File has incorrect headers")
     if not file.content_type:raise HTTPException(status_code=400,detail="Uploaded File has no Filename")
@@ -20,6 +20,6 @@ async def predict(file: UploadFile = File(...)):
         confidence=results["confidence"]
     )
 
-@app.get("/")
+@http_server.get("/")
 async def root():
     return {"message": "FastAPI Server Running"}
