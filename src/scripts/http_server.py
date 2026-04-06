@@ -1,23 +1,30 @@
-from fastapi import FastAPI, UploadFile, HTTPException, File
+from fastapi import FastAPI, UploadFile, File
 from src.scripts.inference import infer_one
-from src.utils.util_functions import load_saved_model
-from src.schemas.response_models import PredictResponse
+from src.utils.util_functions import load_saved_model, image_handler_http
+from src.schemas.response_models import PredictResponse, SinglePrediction
 model = load_saved_model()
 
 http_server = FastAPI()
 
 @http_server.post("/api/predict-one",response_model=PredictResponse)
-async def predict(file: UploadFile = File(...)):
-    if not file.filename:raise HTTPException(status_code=400,detail="Uploaded File has incorrect headers")
-    if not file.content_type:raise HTTPException(status_code=400,detail="Uploaded File has no Filename")
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="File provided is not an image.")
-    image_bytes = await file.read()
-    results = infer_one(image_bytes,model)
+@image_handler_http
+async def predict(image_data_list=None, # injected via decorator
+                zipname=None, # injected via decorator
+                file: UploadFile = File(...)):
+    results = []
+    if not image_data_list: # will catch empty list []
+        return {"error": "Processing failed"}
+    for image in image_data_list:
+        result = infer_one(image["content"],model)
+        filename = image["filename"]
+        results.append(SinglePrediction(
+            filename=filename,
+            predicted_class=result["predicted_class"],
+            confidence=result["confidence"]
+        ))
     return PredictResponse(
-        filename=file.filename,
-        predicted_class=results["predicted_class"],
-        confidence=results["confidence"]
+        zipname=zipname,
+        results=results
     )
 
 @http_server.get("/")

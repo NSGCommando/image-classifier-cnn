@@ -1,10 +1,14 @@
 import keras as ks
 from keras.ops import cast, expand_dims
 from enum import Enum
+from functools import wraps
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from keras.models import load_model, Model
 import matplotlib.pyplot as plt
 from pathlib import Path
+from fastapi import HTTPException, UploadFile
+from zipfile import ZipFile
+from uuid import uuid4
 
 class Paths(Enum):
     ModelsPath = Path(__file__).parents[1].resolve()/"models"
@@ -132,3 +136,52 @@ def print_results(result_data):
     for img in result_data:
         print(f"Class: {img["predicted_class"]}")
         print(f"Confidence: {img["confidence"]}")
+
+# decorator for boilerplate HTTP filetype check and handling zips
+def image_handler_http(f):
+    """
+    Decorator to check filetype and handle if it is a zip.
+    Returns a dictionary of [filename,content], where filename is the image filename and content is the image's raw bytes
+    """
+    @wraps(f)
+    async def edited_f(*args,**kwargs):
+        image_data_list = []
+        target_file:UploadFile|None = kwargs.get("file") # The UploadFile defined in the API route is passed as a keyword arg to decorator
+        if not target_file: raise HTTPException(status_code=400,detail="Upload failed/file not found")
+        if not target_file.filename:raise HTTPException(status_code=400,detail="Uploaded File has no Filename")
+        if not target_file.content_type:raise HTTPException(status_code=400,detail="Uploaded File has incorrect headers")
+        if not target_file.content_type.startswith(("image/","application/zip")):
+            raise HTTPException(status_code=400,detail="Uploaded File is not a Zip or Image")
+        if target_file.content_type.startswith("image"): # check if single image first
+            content = await target_file.read() # need to await UploadFile
+            image_data_list.append({
+                                "filename": target_file.filename,
+                                "content": content
+                            })
+        # handle zip upload
+        elif target_file.content_type.startswith("application/zip"):
+            unique_id = uuid4().hex
+            temp_path = f"src/results/tempzip_{unique_id}.zip"
+            try:
+                with open(temp_path, "wb") as buffer:
+                    # reads the file in chunks and saves to temp location
+                    while chunk := await target_file.read(1024 * 64):
+                        buffer.write(chunk)
+                with ZipFile(temp_path, "r") as z:
+                    for file_info in z.infolist():
+                        if file_info.is_dir():continue # skip sub-directories
+                        if file_info.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')): # only open image files
+                            with z.open(file_info) as image_file:
+                                content = image_file.read()
+                                # append raw bytes for each image, handled by caller
+                                image_data_list.append({
+                                    "filename": file_info.filename,
+                                    "content": content
+                                })
+            finally: # delete the temp zip file after we're done
+                if Path(temp_path).exists():
+                    Path(temp_path).unlink()
+        # inject the image data
+        zipname = target_file.filename
+        return await f(image_data_list=image_data_list, zipname=zipname) # need await if the wrapped func is async
+    return edited_f

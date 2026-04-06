@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
-class PredictResponse(BaseModel):
+from typing import List
+class SinglePrediction(BaseModel):
     filename: str = Field(..., description="The name of the uploaded file")
     predicted_class: str = Field(..., description="The label of the item")
     confidence: float = Field(..., ge=0, le=1, description="Probability score between 0 and 1")
@@ -17,3 +18,7 @@ class PredictResponse(BaseModel):
             ]
         }
     )
+
+class PredictResponse(BaseModel):
+    zipname: str | None = None  # Populated if it was a ZIP
+    results: List[SinglePrediction]
