@@ -5,3 +5,6 @@ __pycache__/
 # ignore all unneeded scripts
 **/*.bat
 **/training.py
+**/*.keras
+**/Exported_Model
+**/*train.py

@@ -2,9 +2,9 @@
 FROM python:3.12.5-slim as builder
 WORKDIR /build
 # Copy requirements from root
-COPY requirements.txt .
-# install the site packages to our own location, denoted by '--user' flag
-RUN pip install --user --no-cache-dir -r requirements.txt
+COPY requirements_inference.txt .
+# install the onnx-runtime-only site packages to our own location, denoted by '--user' flag
+RUN pip install --user --no-cache-dir -r requirements_inference.txt
 
 # Run Image
 FROM python:3.12.5-slim
