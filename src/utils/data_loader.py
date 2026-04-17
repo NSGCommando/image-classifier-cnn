@@ -1,6 +1,5 @@
 from src.schemas.data_strategies import bytes_loader_strategy, str_loader_strategy
-from keras.preprocessing.image import img_to_array
-from keras.ops import mean,expand_dims
+from numpy import array, expand_dims, mean, float32
 
 STRATEGIES = {
         str:str_loader_strategy,
@@ -29,11 +28,13 @@ class DataLoader():
 
     def preprocess_data(self,image_data:str|bytes):
         """Method of DataLoader class to load and preprocess provided image source(path or bytes).
-        Returns processed tensor image array"""
+        Returns processed numpy image array"""
         loaded_data = self._load_data(image_data)
-        img_array = img_to_array(loaded_data)/255.0
+        img_array = array(loaded_data,dtype=float32)/255.0
         if mean(img_array) > 0.5: # flip image luminance if it's mostly white, assuming mostly white means a white background
             img_array = 1.0 - img_array
-        img_array = expand_dims(img_array, axis=0)
+        img_array = expand_dims(img_array, axis=(0,-1)) # NEED expanded dims, ONNX runtime doesn't reshape automatically
+        # print(type(img_array))
+        # print(img_array.shape)
         return img_array
 
