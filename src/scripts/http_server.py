@@ -1,9 +1,9 @@
 from fastapi import FastAPI, UploadFile, File
 from src.scripts.inference import infer_one
-from src.utils.util_functions import load_saved_model, image_handler_http
+from src.utils.util_functions_inference import image_handler_http, start_inference_session
 from src.schemas.response_models import PredictResponse, SinglePrediction
-model = load_saved_model()
-
+# load required sessions
+infer_session = start_inference_session()
 http_server = FastAPI()
 
 @http_server.post("/api/predict-one",response_model=PredictResponse)
@@ -15,7 +15,7 @@ async def predict(image_data_list=None, # injected via decorator
     if not image_data_list: # will catch empty list []
         return {"error": "Processing failed"}
     for image in image_data_list:
-        result = infer_one(image["content"],model)
+        result = infer_one(image["content"],infer_session)
         filename = image["filename"]
         results.append(SinglePrediction(
             filename=filename,
@@ -29,4 +29,4 @@ async def predict(image_data_list=None, # injected via decorator
 
 @http_server.get("/")
 async def root():
-    return {"message": "FastAPI Server Running"}
+    return {"message": "FastAPI Server Running with ONNX Inference"}

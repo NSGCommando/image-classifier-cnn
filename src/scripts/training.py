@@ -1,9 +1,13 @@
 import keras as ks
-from src.utils.util_functions import new_model, preprocess_dataset, Paths
+from shutil import rmtree
+from src.utils.util_functions_train import new_model, preprocess_dataset
+from src.utils.constants import Paths
 
 modelsdir = Paths.ModelsPath.value
-modelsdir.mkdir(parents=True, exist_ok=True)
+exportdir = modelsdir/"Exported_Model"
+exportdir.mkdir(parents=True, exist_ok=True)
 evaldir = Paths.ResultsPath.value
+evaldir.mkdir(parents=True, exist_ok=True)
 
 # load stored evaluation accuracy
 accuracy_store = "eval_accuracy.txt"
@@ -22,6 +26,8 @@ loss, acc = model.evaluate(x=test_images,y=test_labels)
 
 # save weights if eval accuracy is better than before
 if acc>prev_eval_accuracy:
-    model.save(filepath=modelsdir/"fashion_cnn.weights.keras")
+    if exportdir.exists():
+        rmtree(exportdir)
+    model.export(filepath=exportdir)
     with open(file=evaldir/accuracy_store,mode="w") as f:
         f.write(f"{acc:.4f}")
