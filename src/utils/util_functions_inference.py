@@ -7,6 +7,7 @@ from uuid import uuid4
 from pathlib import Path
 from onnxruntime import InferenceSession
 from src.utils.constants import Paths, ImageData, VALID_EXTENSIONS
+import subprocess
 
 def start_inference_session()->InferenceSession:
     return InferenceSession(Paths.ModelsPath.value/"onnx_model.onnx")
@@ -21,8 +22,9 @@ def default_parser():
         formatter_class=RawDescriptionHelpFormatter,
         epilog="""
         Usage:
-        CLI Inference:  python run.py --image path/to/img.jpg\n
-        Web Server:     python run.py
+        CLI File Inference:  python run.py --file [path To image/Zip]\n
+        CLI Local Directory Inference: python run.py --folder [path To folder]\n
+        Web Server:     python run.py --server
         """
         )
     modes = parser.add_mutually_exclusive_group(required=True)
@@ -67,7 +69,7 @@ def print_results(result_data):
 
 
 def zip_parser(zip_path)->List[ImageData]:
-    """Zip parser for CLI mode. Takes path to the zipfile. 
+    """Zip parser for zip files. Takes path to the zipfile. 
     Returns a List of Dicts of format {'filename':string,'content':bytes}."""
     image_data_list=[]
     with ZipFile(zip_path, "r") as z:
@@ -121,3 +123,32 @@ def image_handler_http(f):
         zipname = target_file.filename
         return await f(image_data_list=image_data_list, zipname=zipname) # need await if the wrapped func is async
     return edited_f
+
+# server subprocess runner
+def run_server(command, proc_name):
+    """
+    Runs a server as a subprocess and prints its output to parent process.
+    Graceful shutdown via keyboard interrupts handled.
+    """
+    process = subprocess.Popen(
+            args=command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True
+        )
+    try:
+        for line in process.stdout:#type:ignore
+            print(f"[{proc_name}] {line.strip()}")
+    
+    except KeyboardInterrupt:
+        print(f"[{proc_name}] KeyboardInterrupt caught, terminating server...")
+        process.terminate()
+        process.wait()
+    finally:
+        if process.poll() is None: # check if child process has terminated
+            process.terminate()
+            process.wait()
+        print(f"[{proc_name}] server exited cleanly.")
+
+    process.wait()
+    print(f"[{proc_name}] exited with code {process.returncode}")
