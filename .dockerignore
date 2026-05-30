@@ -8,3 +8,4 @@ __pycache__/
 **/*.keras
 **/Exported_Model
 **/*train.py
+tf2onnx_convert.py

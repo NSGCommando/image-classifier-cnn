@@ -4,9 +4,9 @@ from src.utils.util_functions_inference import start_inference_session
 from src.schemas.response_models import SinglePrediction
 # load required sessions
 infer_session = start_inference_session()
-http_inference = FastAPI()
+http_server = FastAPI()
 
-@http_inference.post("/api/predict-one",response_model=SinglePrediction)
+@http_server.post("/api/predict-one",response_model=SinglePrediction)
 async def predict(image_file:UploadFile=File(...)):
     """Route to predict result for a single image. Returns SinglePrediction response."""
     image_bytes = await image_file.read()
@@ -21,6 +21,6 @@ async def predict(image_file:UploadFile=File(...)):
         confidence=result["confidence"]
     ))
 
-@http_inference.get("/")
+@http_server.get("/")
 async def root():
     return {"message": "FastAPI Server Running with ONNX Inference"}
