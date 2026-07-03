@@ -5,12 +5,23 @@ from src.scripts.cli import cli_inference
 from src.scripts.inference_worker import worker_wrapper
 from src.utils.redis_client import create_worker_group, get_redis
 from src.utils.logging_config import configure_logging
+from src.utils.constants import redis_labels
 
 configure_logging()
 logger = logging.getLogger(__name__)
 
 dispatch_server_cmd = ["uvicorn", "src.scripts.dispatcher:dispatcher", "--host", "0.0.0.0", "--port", "8000"]
 # inference_server_cmd = ["uvicorn", "src.scripts.http_server:http_server", "--host", "0.0.0.0", "--port", "8001"]
+job_stream = redis_labels.JOB_STREAM_NAME.value
+
+async def stream_cleanup(redis_client):
+    while True:
+        # trim job stream
+        await redis_client.xtrim(job_stream, maxlen=10000, approximate=True)
+        logger.info("Stream cleaned up! Sleeping!")
+
+        # sleep
+        await asyncio.sleep(60)
 
 async def start_workers(redis_client,worker_count:int):
     tasks = [
@@ -43,6 +54,7 @@ async def run_app():
         # create redis worker tasks and the redis worker group
         redis_client_orchestrator = await get_redis("orchestrator")
         await create_worker_group(redis_client=redis_client_orchestrator)
+        cheanup_task = asyncio.create_task(stream_cleanup(redis_client_orchestrator)) 
         await start_workers(redis_client_orchestrator,int(args.server))
 
 

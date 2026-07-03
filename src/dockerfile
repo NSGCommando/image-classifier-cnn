@@ -15,6 +15,7 @@ COPY --from=builder /root/.local /root/.local
 # Copy src code, includes scripts and saved model
 COPY src/models/onnx_model.onnx ./src/models/onnx_model.onnx
 copy src/schemas/data_strategies.py ./src/schemas/data_strategies.py
+copy src/schemas/response_models.py ./src/schemas/response_models.py
 COPY src/scripts/dispatcher.py ./src/scripts/dispatcher.py
 COPY src/scripts/inference_worker.py ./src/scripts/inference_worker.py
 COPY src/scripts/inference.py ./src/scripts/inference.py

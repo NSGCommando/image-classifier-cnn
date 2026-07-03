@@ -16,8 +16,7 @@ dispatcher = FastAPI()
 async def predict(image_data_list=None, # injected via decorator
                 zipname=None, # injected via decorator
                 file: UploadFile = File(...)):
-
-    job_ids = [] # store job IDs for this zip    
+ 
     if not image_data_list: # will catch empty list []
         return {"error": "Processing failed"}
 
@@ -27,7 +26,6 @@ async def predict(image_data_list=None, # injected via decorator
     for image in image_data_list:
         job_id = str(uuid.uuid4())
         await add_image_job(redis_client_dispatcher,image["filename"],image["content"],job_id, batch_id)
-        job_ids.append(job_id)
 
     # store metadata for the batch
     await redis_client_dispatcher.hset(
