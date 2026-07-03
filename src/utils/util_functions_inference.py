@@ -24,7 +24,7 @@ def default_parser():
         Usage:
         CLI File Inference:  python run.py --file [path To image/Zip]\n
         CLI Local Directory Inference: python run.py --folder [path To folder]\n
-        Web Server:     python run.py --server
+        Web Server:     python run.py --server x (where 'x' is number of inference workers)
         """
         )
     modes = parser.add_mutually_exclusive_group(required=True)
@@ -40,8 +40,11 @@ def default_parser():
     )
     modes.add_argument(
         "--server",
-        action="store_true",
-        help="Option to start FastAPI Uvicorn server"
+        type=int,
+        nargs="?", # nargs means Number of Arguments. '?' means a SINGLE optional argument
+        const=1,
+        default=False,
+        help="'--server x'. Option to start FastAPI Uvicorn server with 'x' number of workers. Default number of worker threads to start is 1"
     )
     return parser.parse_args()
 
@@ -109,7 +112,7 @@ def image_handler_http(f):
         # handle zip upload
         elif target_file.content_type.startswith("application/zip"):
             unique_id = uuid4().hex
-            temp_path = f"src/results/tempzip_{unique_id}.zip"
+            temp_path = f"src/tempzip_{unique_id}.zip"
             try:
                 with open(temp_path, "wb") as buffer:
                     # reads the file in chunks and saves to temp location
