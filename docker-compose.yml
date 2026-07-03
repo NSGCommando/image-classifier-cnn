@@ -5,5 +5,19 @@ services:
     build:
       context: .
       dockerfile: src/dockerfile
+    environment:
+      - IS_DOCKER=1
+    depends_on:
+      redis_container:
+        condition: service_healthy
     ports: 
       - "8000:8000"
+  
+  redis_container:
+    container_name: redis
+    image: redis:latest
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10

@@ -13,10 +13,21 @@ WORKDIR /img-classifier
 COPY --from=builder /root/.local /root/.local
 
 # Copy src code, includes scripts and saved model
-COPY src/ ./src
+COPY src/models/onnx_model.onnx ./src/models/onnx_model.onnx
+copy src/schemas/data_strategies.py ./src/schemas/data_strategies.py
+COPY src/scripts/dispatcher.py ./src/scripts/dispatcher.py
+COPY src/scripts/inference_worker.py ./src/scripts/inference_worker.py
+COPY src/scripts/inference.py ./src/scripts/inference.py
+copy src/scripts/cli.py ./src/scripts/cli.py
+COPY src/utils/constants.py ./src/utils/constants.py
+COPY src/utils/data_loader.py ./src/utils/data_loader.py
+COPY src/utils/logging_config.py ./src/utils/logging_config.py
+COPY src/utils/redis_client.py ./src/utils/redis_client.py
+COPY src/utils/util_functions_inference.py ./src/utils/util_functions_inference.py
+COPY src/run.py ./src/run.py
 # Ensure pip knows where the site-packages are being installed
 ENV PATH=/root/.local/bin:$PATH
 ENV PYTHONPATH=/img-classifier
 EXPOSE 8000
 ENTRYPOINT ["python","-m", "src.run"]
-CMD ["--server"]
+CMD ["--server", "2"]
