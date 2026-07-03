@@ -11,3 +11,9 @@ class ImageData(TypedDict):
     content: bytes
 
 VALID_EXTENSIONS = {".webp", ".jpg", ".jpeg", ".png"}
+
+class redis_labels(Enum):
+    """defines group and stream names for Redis"""
+    GROUP_NAME = "workers"
+    JOB_STREAM_NAME = "image_jobs"
+    RESULT_STREAM_NAME = "image_results"
