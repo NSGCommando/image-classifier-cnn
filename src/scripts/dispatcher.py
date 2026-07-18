@@ -23,11 +23,8 @@ async def predict(image_data_list=None, # injected via decorator
     # create a random UUID for the batch of images
     batch_id = str(uuid.uuid4())
 
-    for image in image_data_list:
-        job_id = str(uuid.uuid4())
-        await add_image_job(redis_client_dispatcher,image["filename"],image["content"],job_id, batch_id)
-
-    # store metadata for the batch
+    # store metadata for the batch, do this first so no matter how fast a worker is, the dispatcher is guaranteed to get the related batchname on collection
+    # preventing the issue of unset key value for the batch id
     await redis_client_dispatcher.hset(
         name=f"batch:{batch_id}",
         mapping={
@@ -38,6 +35,11 @@ async def predict(image_data_list=None, # injected via decorator
     )
 
     await redis_client_dispatcher.expire(f"batch:{batch_id}", 120) # batch metadata expires after 2 minutes
+    
+    for image in image_data_list:
+        job_id = str(uuid.uuid4())
+        await add_image_job(redis_client_dispatcher,image["filename"],image["content"],job_id, batch_id)
+        
     return {
         "batch": batch_id,
         "status": "processing",
