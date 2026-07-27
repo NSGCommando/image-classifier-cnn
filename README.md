@@ -44,7 +44,7 @@
 
 ### Run Inference Servers ###
 - Ensure a Redis instance is running and available at `localhost:6379`. You can use global Redis instance or Docker container exposed to port 6379. 
-  - No Redis instance is required to manually start if running the app via Docker Compose
+  - No need to manually start a Redis instance if running the app via Docker Compose
 - Run `Uvicorn` dispatcher and inference servers via `run.bat --server [x]` from project root, where 'x' is number of inference workers to start 
 - Access the dispatcher API at `localhost:8000/api/dispatcher` and result API at `localhost:8000/api/dispatcher/results/{batch_id}`
   - The dispatcher API returns a status message with a `batch_id` after successful file upload.
